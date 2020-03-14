@@ -18,6 +18,14 @@ class ProductPage(BasePage):
         product_price_bskt = self.browser.find_element(*ProductPageLocators.PRODUCT_PRICE_BSKT).text
         assert self.product_price == product_price_bskt, f"{self.product_price} not equal {product_price_bskt}"
 
+    def should_not_be_success_message(self):
+        assert self.is_not_element_present(*ProductPageLocators.SUCCESS_MESSAGE), \
+            "Success message is presented, but should not be"
+
+    def should_dissapear_of_success_message(self):
+        assert self.is_disappeared(*ProductPageLocators.SUCCESS_MESSAGE), \
+            "Success message is presented, but should not be"
+
     def solve_quiz_and_get_code(self):
         alert = self.browser.switch_to.alert
         x = alert.text.split(" ")[2]
