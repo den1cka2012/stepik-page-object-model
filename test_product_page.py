@@ -1,6 +1,8 @@
 from pages.product_page import ProductPage
 from pages.basket_page import BasketPage
+from pages.login_page import LoginPage
 import pytest
+import time
 
 @pytest.mark.parametrize('link', ["http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer0",
                                   "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer1",
@@ -27,7 +29,8 @@ def test_guest_cant_see_success_message_after_adding_product_to_basket(browser, 
     page.add_to_basket()
     page.should_not_be_success_message()
 
-def test_guest_cant_see_success_message(browser, link="http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/"):
+def test_guest_cant_see_success_message(browser):
+    link="http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/"
     page = ProductPage(browser, link)
     page.open()
     page.should_not_be_success_message()
@@ -59,3 +62,25 @@ def test_guest_cant_see_product_in_basket_opened_from_product_page(browser):
     basket_page = BasketPage(browser, browser.current_url)
     basket_page.check_no_items()
     basket_page.check_empty_basket_text()
+
+class TestUserAddToBasketFromProductPage:
+    @pytest.fixture(scope="function", autouse=True)
+    def setup(self, browser):
+        page = LoginPage(browser, "http://selenium1py.pythonanywhere.com/en-gb/accounts/login/")
+        page.open()
+        page.register_new_user(str(time.time()) + "@fakemail.org", "SuperPassword")
+        page.should_be_authorized_user()
+
+    def test_user_cant_see_success_message(self, browser):
+        link="http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/"
+        page = ProductPage(browser, link)
+        page.open()
+        page.should_not_be_success_message()
+
+    def test_user_can_add_product_to_basket(self, browser):
+        link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/"
+        page = ProductPage(browser, link)
+        page.open()
+        page.add_to_basket()
+        page.check_name()
+        page.check_price()
